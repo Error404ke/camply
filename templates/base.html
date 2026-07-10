@@ -1,0 +1,393 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.user.profile.theme|default:'light' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Camly - Campus Community{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Glass CSS -->
+    <link rel="stylesheet" href="{% static 'css/glass.css' %}">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+        
+        .glass-navbar {
+            background: var(--navbar-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+        }
+        
+        .glass-navbar .navbar-brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .glass-navbar .navbar-brand i {
+            color: var(--accent-color);
+        }
+        
+        .glass-navbar .nav-link {
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .glass-navbar .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--glass-bg);
+        }
+        
+        .glass-navbar .nav-link.active {
+            color: var(--accent-color);
+        }
+        
+        .glass-navbar .nav-link .badge {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.6rem;
+            padding: 3px 6px;
+        }
+        
+        .theme-toggle {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            margin-left: 5px;
+        }
+        
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+        
+        .role-badge {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-left: 6px;
+            font-weight: 500;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--glass-border);
+        }
+        
+        .dropdown-menu.glass {
+            background: var(--dropdown-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            padding: 8px;
+        }
+        
+        .dropdown-menu.glass .dropdown-item {
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        
+        .dropdown-menu.glass .dropdown-item:hover {
+            background: var(--glass-bg);
+            color: var(--accent-color);
+        }
+        
+        .dropdown-menu.glass .dropdown-item i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .dropdown-menu.glass .dropdown-divider {
+            border-color: var(--glass-border);
+            margin: 5px 0;
+        }
+        
+        body.light-mode .glass-navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        body.light-mode .glass-navbar .nav-link {
+            color: #444 !important;
+        }
+        
+        body.light-mode .glass-navbar .nav-link:hover {
+            color: #1a237e !important;
+            background: rgba(26, 35, 126, 0.05);
+        }
+        
+        body.light-mode .glass-navbar .nav-link.active {
+            color: #1a237e !important;
+        }
+        
+        body.dark-mode .glass-navbar {
+            background: rgba(10, 10, 30, 0.95) !important;
+        }
+        
+        body.dark-mode .glass-navbar .nav-link {
+            color: #bbb !important;
+        }
+        
+        body.dark-mode .glass-navbar .nav-link:hover {
+            color: #f9a825 !important;
+            background: rgba(249, 168, 37, 0.05);
+        }
+        
+        body.dark-mode .glass-navbar .nav-link.active {
+            color: #f9a825 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .glass-navbar .nav-link {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .role-badge {
+                display: none;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if request.user.profile.theme == 'dark' %}dark-mode{% else %}light-mode{% endif %}">
+    <!-- NO LOADER - Removed to prevent infinite loading -->
+    
+    <!-- Navbar Overlay -->
+    <div class="navbar-overlay" id="navbarOverlay" onclick="closeMenu()"></div>
+    
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="navbar navbar-expand-lg glass-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% if user.is_superuser %}/admin{% else %}{% url 'home' %}{% endif %}">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Camly</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" onclick="toggleMenu()" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Close button -->
+                <button class="close-menu d-lg-none" onclick="closeMenu()">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'chat_home' %}active{% endif %}" href="{% url 'chat:chat_home' %}">
+                                <i class="fas fa-comments"></i> Chat
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'groups:group_list' %}">
+                                <i class="fas fa-users"></i> Groups
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'events:event_list' %}">
+                                <i class="fas fa-calendar"></i> Events
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'housing:housing_list' %}">
+                                <i class="fas fa-home"></i> Housing
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'resources:resource_list' %}">
+                                <i class="fas fa-book"></i> Resources
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'notify:notification_list' %}">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger">5</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown ms-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="user-avatar">
+                                {% else %}
+                                <i class="fas fa-user-circle fa-2x" style="color: var(--text-secondary);"></i>
+                                {% endif %}
+                                <span class="d-none d-md-inline">{{ user.username }}</span>
+                                <span class="role-badge d-none d-md-inline">{{ user.profile.get_user_type_display }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end glass">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' user.username %}"><i class="fas fa-user"></i> Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="fas fa-cog"></i> Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:register' %}"><i class="fas fa-user-plus"></i> Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show glass">
+            <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Camly - Campus Community Platform</p>
+            <small class="text-muted">Connecting students within their campus community</small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Menu Toggle -->
+    <script>
+        function toggleMenu() {
+            const navbar = document.getElementById('navbarNav');
+            const overlay = document.getElementById('navbarOverlay');
+            navbar.classList.toggle('show');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = navbar.classList.contains('show') ? 'hidden' : '';
+        }
+        
+        function closeMenu() {
+            const navbar = document.getElementById('navbarNav');
+            const overlay = document.getElementById('navbarOverlay');
+            navbar.classList.remove('show');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navbar = document.getElementById('navbarNav');
+            const toggler = document.querySelector('.navbar-toggler');
+            if (navbar && navbar.classList.contains('show') && 
+                !navbar.contains(event.target) && 
+                !toggler.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    </script>
+    
+    <!-- Theme Toggle -->
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.classList.remove(currentTheme + '-mode');
+            body.classList.add(newTheme + '-mode');
+            
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            
+            fetch('/accounts/edit/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: `theme=${newTheme}`
+            }).catch(() => {});
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const icon = document.getElementById('themeIcon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

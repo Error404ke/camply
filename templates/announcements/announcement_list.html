@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Announcements - Camly{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="glass p-4">
+                <h2><i class="fas fa-bullhorn" style="color: var(--accent-color);"></i> Announcements</h2>
+                <p class="text-muted">Stay updated with campus news</p>
+                
+                <div class="mt-4">
+                    <div class="alert alert-info glass">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Announcements feature is coming soon! Get the latest campus news.
+                    </div>
+                    
+                    <div class="list-group mt-3">
+                        <div class="list-group-item glass mb-2">
+                            <h6>Welcome to Camly!</h6>
+                            <p class="text-muted small">Posted 2 hours ago</p>
+                            <span class="badge bg-danger">Urgent</span>
+                        </div>
+                        <div class="list-group-item glass mb-2">
+                            <h6>Exam Schedule Released</h6>
+                            <p class="text-muted small">Posted 1 day ago</p>
+                            <span class="badge bg-warning">Important</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

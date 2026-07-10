@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Story - Camly{% endblock %}
+
+{% block extra_css %}
+<style>
+    .story-upload-area {
+        border: 2px dashed var(--glass-border);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: var(--glass-bg);
+    }
+    
+    .story-upload-area:hover {
+        border-color: var(--accent-color);
+    }
+    
+    .story-upload-area i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 15px;
+    }
+    
+    .story-preview {
+        display: none;
+        margin-top: 20px;
+        border-radius: 12px;
+        overflow: hidden;
+        max-height: 400px;
+    }
+    
+    .story-preview img {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+    }
+    
+    .story-preview video {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-circle fa-3x" style="color: var(--accent-color);"></i>
+                    <h2 class="mt-2">Create Story</h2>
+                    <p class="text-muted">Share what's happening now (disappears in 24 hours)</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Add Media</label>
+                        <div class="story-upload-area" onclick="document.getElementById('mediaInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div>
+                                <strong>Click to upload</strong> or drag and drop
+                            </div>
+                            <small class="text-muted">Image or video (Max 50MB)</small>
+                        </div>
+                        <input type="file" name="media" id="mediaInput" accept="image/*,video/*" onchange="previewMedia(this)">
+                    </div>
+                    
+                    <div class="story-preview" id="storyPreview">
+                        <img id="previewImage" style="display:none;">
+                        <video id="previewVideo" controls style="display:none;"></video>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Add Text (Optional)</label>
+                        <textarea name="content" class="glass-input" rows="2" placeholder="What's on your mind?" style="resize: vertical;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="glass-btn glass-btn-primary w-100 py-3">
+                        <i class="fas fa-plus-circle me-2"></i> Post Story
+                    </button>
+                </form>
+                
+                <div class="mt-3">
+                    <a href="{% url 'home' %}" class="btn w-100" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-arrow-left me-2"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewMedia(input) {
+        const preview = document.getElementById('storyPreview');
+        const imgPreview = document.getElementById('previewImage');
+        const videoPreview = document.getElementById('previewVideo');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.style.display = 'block';
+                
+                if (file.type.startsWith('image/')) {
+                    imgPreview.style.display = 'block';
+                    videoPreview.style.display = 'none';
+                    imgPreview.src = e.target.result;
+                } else if (file.type.startsWith('video/')) {
+                    imgPreview.style.display = 'none';
+                    videoPreview.style.display = 'block';
+                    videoPreview.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+{% endblock %}

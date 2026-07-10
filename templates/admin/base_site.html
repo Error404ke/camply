@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Camly Admin{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/glass.css' %}">
+<style>
+    body {
+        background: var(--bg-primary) !important;
+    }
+    #header {
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        color: var(--text-primary) !important;
+    }
+    #header a {
+        color: var(--text-primary) !important;
+    }
+    .module h2, .module caption {
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        color: var(--text-primary) !important;
+    }
+    .module {
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 16px !important;
+    }
+    .module table {
+        background: transparent !important;
+    }
+    #changelist-filter {
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 16px !important;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: linear-gradient(135deg, #1a237e, #0d47a1) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: white !important;
+        padding: 10px 20px !important;
+    }
+    .button:hover, input[type=submit]:hover {
+        background: linear-gradient(135deg, #0d47a1, #1a237e) !important;
+        box-shadow: 0 4px 20px rgba(26, 35, 126, 0.3) !important;
+    }
+    .selector-chosen h2 {
+        background: var(--glass-bg) !important;
+        backdrop-filter: var(--glass-blur) !important;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Camly Admin</a></h1>
+{% endblock %}

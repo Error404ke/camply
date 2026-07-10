@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Reel - Camly{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reel-upload-area {
+        border: 2px dashed var(--glass-border);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: var(--glass-bg);
+    }
+    
+    .reel-upload-area:hover {
+        border-color: var(--accent-color);
+        background: var(--glass-bg);
+    }
+    
+    .reel-upload-area.dragover {
+        border-color: var(--accent-color);
+        background: var(--glass-bg);
+    }
+    
+    .reel-upload-area i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 15px;
+    }
+    
+    .reel-upload-area .upload-text {
+        color: var(--text-secondary);
+    }
+    
+    .reel-upload-area .upload-text strong {
+        color: var(--accent-color);
+    }
+    
+    .video-preview {
+        display: none;
+        margin-top: 20px;
+        border-radius: 12px;
+        overflow: hidden;
+        max-height: 400px;
+        background: #000;
+    }
+    
+    .video-preview video {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+    }
+    
+    .file-input-wrapper input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-video fa-3x" style="color: var(--accent-color);"></i>
+                    <h2 class="mt-2">Create Reel</h2>
+                    <p class="text-muted">Share a short video with your community</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Video Upload -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Upload Video</label>
+                        <div class="file-input-wrapper">
+                            <div class="reel-upload-area" onclick="document.getElementById('videoInput').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div class="upload-text">
+                                    <strong>Click to upload</strong> or drag and drop
+                                </div>
+                                <small class="text-muted">MP4, MOV, AVI (Max 100MB)</small>
+                            </div>
+                            <input type="file" name="video" id="videoInput" accept="video/*" required onchange="previewVideo(this)">
+                        </div>
+                    </div>
+                    
+                    <!-- Video Preview -->
+                    <div class="video-preview" id="videoPreview">
+                        <video controls>
+                            <source id="videoSource" src="">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    
+                    <!-- Caption -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Caption</label>
+                        <textarea name="caption" class="glass-input" rows="3" placeholder="Write a caption for your reel..." style="resize: vertical;"></textarea>
+                        <small class="text-muted">Add a catchy caption to engage your audience</small>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="glass-btn glass-btn-primary w-100 py-3">
+                        <i class="fas fa-upload me-2"></i> Upload Reel
+                    </button>
+                </form>
+                
+                <div class="mt-3">
+                    <a href="{% url 'home' %}" class="btn w-100" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-arrow-left me-2"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewVideo(input) {
+        const preview = document.getElementById('videoPreview');
+        const video = document.getElementById('videoSource');
+        const uploadArea = document.querySelector('.reel-upload-area');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                video.src = e.target.result;
+                preview.style.display = 'block';
+                uploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Drag and drop support
+    const uploadArea = document.querySelector('.reel-upload-area');
+    
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const input = document.getElementById('videoInput');
+            input.files = files;
+            previewVideo(input);
+        }
+    });
+</script>
+{% endblock %}

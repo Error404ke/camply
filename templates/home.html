@@ -1,0 +1,741 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ===== Stories Section ===== */
+    .stories-container {
+        display: flex;
+        gap: 12px;
+        padding: 10px 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    
+    .stories-container::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .story-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--accent-color);
+        cursor: pointer;
+        transition: all 0.3s;
+        flex-shrink: 0;
+    }
+    
+    .story-avatar:hover {
+        transform: scale(1.05);
+    }
+    
+    .story-avatar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    
+    .story-avatar-wrapper .username {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        max-width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .story-avatar-wrapper .add-story {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px dashed var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--accent-color);
+        background: var(--glass-bg);
+        cursor: pointer;
+        transition: all 0.3s;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
+    
+    .story-avatar-wrapper .add-story:hover {
+        background: var(--accent-color);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    /* ===== Posts Feed ===== */
+    .post-card {
+        background: var(--bg-card);
+        backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .post-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .post-card .post-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .post-card .post-header .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--glass-border);
+    }
+    
+    .post-card .post-header .username {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .post-card .post-header .time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-left: auto;
+    }
+    
+    .post-card .post-content {
+        color: var(--text-primary);
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+    
+    .post-card .post-media {
+        width: 100%;
+        border-radius: 12px;
+        margin: 12px 0;
+        max-height: 500px;
+        object-fit: cover;
+    }
+    
+    .post-card .post-actions {
+        display: flex;
+        gap: 20px;
+        padding-top: 12px;
+        border-top: 1px solid var(--glass-border);
+    }
+    
+    .post-card .post-actions button {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+        border-radius: 8px;
+    }
+    
+    .post-card .post-actions button:hover {
+        background: var(--glass-bg);
+        color: var(--accent-color);
+    }
+    
+    .post-card .post-actions button.liked {
+        color: #e74c3c;
+    }
+    
+    .post-card .post-actions button.liked i {
+        font-weight: 900;
+    }
+    
+    .post-card .comments-section {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--glass-border);
+    }
+    
+    .post-card .comments-section .comment {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        align-items: flex-start;
+    }
+    
+    .post-card .comments-section .comment .comment-user {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .post-card .comments-section .comment .comment-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        word-break: break-word;
+    }
+    
+    .post-card .comment-input {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .post-card .comment-input input {
+        flex: 1;
+        padding: 8px 14px;
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        background: var(--input-bg);
+        color: var(--text-primary);
+    }
+    
+    .post-card .comment-input input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+    }
+    
+    .post-card .comment-input button {
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: none;
+        background: var(--accent-color);
+        color: white;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .post-card .comment-input button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px var(--accent-glow);
+    }
+    
+    /* ===== Reels Grid ===== */
+    .reels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+    
+    .reel-item {
+        position: relative;
+        aspect-ratio: 9/16;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #1a1a2e;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid var(--glass-border);
+    }
+    
+    .reel-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        border-color: var(--accent-color);
+    }
+    
+    .reel-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+    }
+    
+    .reel-item .reel-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        color: white;
+        pointer-events: none;
+    }
+    
+    .reel-item .reel-overlay .reel-caption {
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .reel-item .reel-overlay .reel-views {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    
+    .reel-item .reel-play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 3rem;
+        opacity: 0.6;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        pointer-events: none;
+        transition: all 0.3s;
+    }
+    
+    .reel-item:hover .reel-play-icon {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    
+    /* ===== Create Buttons ===== */
+    .create-fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a237e, #0d47a1);
+        color: white;
+        border: none;
+        font-size: 1.8rem;
+        box-shadow: 0 8px 30px rgba(26, 35, 126, 0.4);
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    
+    .create-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 40px rgba(26, 35, 126, 0.6);
+        color: white;
+    }
+    
+    .create-fab-options {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 999;
+    }
+    
+    .create-fab-options.show {
+        display: flex;
+    }
+    
+    .create-fab-options .fab-option {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .create-fab-options .fab-option:hover {
+        transform: scale(1.1);
+    }
+    
+    .fab-option-story {
+        background: linear-gradient(135deg, #f9a825, #f57c00);
+    }
+    
+    .fab-option-post {
+        background: linear-gradient(135deg, #4caf50, #2e7d32);
+    }
+    
+    .fab-option-reel {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+    
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+        .reels-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        .create-fab {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            bottom: 20px;
+            right: 20px;
+        }
+        .create-fab-options {
+            bottom: 80px;
+            right: 20px;
+        }
+        .create-fab-options .fab-option {
+            width: 45px;
+            height: 45px;
+            font-size: 1rem;
+        }
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+        }
+        .story-avatar-wrapper .add-story {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ===== STORIES SECTION ===== -->
+<div class="container">
+    <div class="glass p-3 mb-4">
+        <div class="stories-container">
+            <!-- Add Story Button -->
+            <div class="story-avatar-wrapper">
+                <a href="{% url 'posts:create_story' %}" class="add-story">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <span class="username">Add Story</span>
+            </div>
+            
+            <!-- Stories -->
+            {% if stories %}
+                {% for story in stories %}
+                <div class="story-avatar-wrapper" onclick="viewStory({{ story.id }})">
+                    {% if story.user.profile.profile_picture %}
+                    <img src="{{ story.user.profile.profile_picture.url }}" class="story-avatar">
+                    {% else %}
+                    <div class="story-avatar" style="background: linear-gradient(135deg, #1a237e, #0d47a1); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.5rem;">
+                        {{ story.user.username|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                    <span class="username">{{ story.user.username|truncatechars:8 }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-muted py-2">No stories available</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ===== FEED SECTION ===== -->
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Create Post Prompt -->
+            <div class="glass p-4 mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" class="avatar" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-3x" style="color: var(--text-secondary);"></i>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <a href="{% url 'posts:create_post' %}" class="btn w-100 text-start" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 25px; padding: 12px 20px; color: var(--text-secondary);">
+                            What's on your mind?
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Posts Feed -->
+            <div id="postsFeed">
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="post-card" id="post-{{ post.id }}">
+                        <div class="post-header">
+                            {% if post.user.profile.profile_picture %}
+                            <img src="{{ post.user.profile.profile_picture.url }}" class="avatar">
+                            {% else %}
+                            <i class="fas fa-user-circle fa-2x" style="color: var(--text-secondary);"></i>
+                            {% endif %}
+                            <span class="username">{{ post.user.username }}</span>
+                            <span class="time">{{ post.created_at|timesince }} ago</span>
+                        </div>
+                        
+                        <div class="post-content">{{ post.content }}</div>
+                        
+                        {% if post.image %}
+                        <img src="{{ post.image.url }}" class="post-media">
+                        {% endif %}
+                        
+                        {% if post.video %}
+                        <video controls class="post-media" style="max-height: 400px;">
+                            <source src="{{ post.video.url }}" type="video/mp4">
+                        </video>
+                        {% endif %}
+                        
+                        <div class="post-actions">
+                            <button onclick="toggleLike({{ post.id }}, this)" class="{% if user in post.likes.all %}liked{% endif %}">
+                                <i class="fas fa-heart"></i>
+                                <span class="likes-count">{{ post.get_likes_count }}</span>
+                            </button>
+                            <button onclick="toggleComments({{ post.id }})">
+                                <i class="fas fa-comment"></i>
+                                <span>{{ post.get_comments_count }}</span>
+                            </button>
+                            <button onclick="sharePost({{ post.id }})">
+                                <i class="fas fa-share"></i>
+                                <span>{{ post.shares }}</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Comments Section -->
+                        <div class="comments-section" id="comments-{{ post.id }}" style="display: none;">
+                            {% for comment in post.comments.all|slice:":5" %}
+                            <div class="comment">
+                                <span class="comment-user">{{ comment.user.username }}</span>
+                                <span class="comment-text">{{ comment.content }}</span>
+                            </div>
+                            {% endfor %}
+                            <div class="comment-input">
+                                <input type="text" id="comment-input-{{ post.id }}" placeholder="Write a comment...">
+                                <button onclick="addComment({{ post.id }})">Post</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="glass p-4 text-center">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                        <h5>No posts yet</h5>
+                        <p class="text-muted">Be the first to share something!</p>
+                        <a href="{% url 'posts:create_post' %}" class="glass-btn glass-btn-primary">Create Post</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== REELS SECTION ===== -->
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3><i class="fas fa-video" style="color: var(--accent-color);"></i> Reels</h3>
+        <a href="{% url 'posts:create_reel' %}" class="glass-btn glass-btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Create Reel
+        </a>
+    </div>
+    
+    <div class="reels-grid">
+        {% if reels %}
+            {% for reel in reels %}
+            <div class="reel-item" onclick="openReel('{{ reel.video.url }}', '{{ reel.caption|escapejs }}', '{{ reel.user.username }}', '{{ reel.views }}')">
+                <video muted playsinline preload="metadata">
+                    <source src="{{ reel.video.url }}" type="video/mp4">
+                </video>
+                <div class="reel-play-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="reel-overlay">
+                    <div class="reel-caption">{{ reel.caption|truncatechars:30|default:"No caption" }}</div>
+                    <div class="reel-views">{{ reel.views }} views</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No reels available. Create your first reel!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== CREATE FLOATING BUTTON ===== -->
+<button class="create-fab" onclick="toggleFab()" title="Create">
+    <i class="fas fa-plus" id="fabIcon"></i>
+</button>
+
+<div class="create-fab-options" id="fabOptions">
+    <a href="{% url 'posts:create_story' %}" class="fab-option fab-option-story" title="Add Story">
+        <i class="fas fa-circle"></i>
+    </a>
+    <a href="{% url 'posts:create_post' %}" class="fab-option fab-option-post" title="Create Post">
+        <i class="fas fa-pen"></i>
+    </a>
+    <a href="{% url 'posts:create_reel' %}" class="fab-option fab-option-reel" title="Create Reel">
+        <i class="fas fa-video"></i>
+    </a>
+</div>
+
+<!-- ===== REEL FULL SCREEN MODAL ===== -->
+{% include 'reel_fullscreen.html' %}
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+    // ===== Toggle FAB Menu =====
+    function toggleFab() {
+        const options = document.getElementById('fabOptions');
+        const icon = document.getElementById('fabIcon');
+        options.classList.toggle('show');
+        icon.classList.toggle('fa-plus');
+        icon.classList.toggle('fa-times');
+    }
+    
+    // Close FAB when clicking outside
+    document.addEventListener('click', function(e) {
+        const fab = document.querySelector('.create-fab');
+        const options = document.getElementById('fabOptions');
+        if (!fab.contains(e.target) && !options.contains(e.target)) {
+            options.classList.remove('show');
+            const icon = document.getElementById('fabIcon');
+            icon.classList.add('fa-plus');
+            icon.classList.remove('fa-times');
+        }
+    });
+    
+    // ===== View Story =====
+    function viewStory(storyId) {
+        fetch(`/posts/story/view/${storyId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Story viewed!');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // ===== Like Post =====
+    function toggleLike(postId, button) {
+        fetch(`/posts/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const likesSpan = button.querySelector('.likes-count');
+            if (likesSpan) {
+                likesSpan.textContent = data.likes_count;
+            }
+            if (data.liked) {
+                button.classList.add('liked');
+            } else {
+                button.classList.remove('liked');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // ===== Toggle Comments =====
+    function toggleComments(postId) {
+        const commentsDiv = document.getElementById(`comments-${postId}`);
+        if (commentsDiv) {
+            if (commentsDiv.style.display === 'none' || commentsDiv.style.display === '') {
+                commentsDiv.style.display = 'block';
+            } else {
+                commentsDiv.style.display = 'none';
+            }
+        }
+    }
+    
+    // ===== Add Comment =====
+    function addComment(postId) {
+        const input = document.getElementById(`comment-input-${postId}`);
+        if (!input) return;
+        
+        const content = input.value.trim();
+        if (!content) return;
+        
+        fetch(`/posts/comment/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `content=${encodeURIComponent(content)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commentsDiv = document.getElementById(`comments-${postId}`);
+                if (commentsDiv) {
+                    const commentHtml = `
+                        <div class="comment">
+                            <span class="comment-user">${data.username}</span>
+                            <span class="comment-text">${data.content}</span>
+                        </div>
+                    `;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = commentHtml;
+                    const commentEl = tempDiv.firstElementChild;
+                    
+                    const inputDiv = commentsDiv.querySelector('.comment-input');
+                    if (inputDiv) {
+                        commentsDiv.insertBefore(commentEl, inputDiv);
+                    }
+                    
+                    input.value = '';
+                    
+                    const commentBtn = document.querySelector(`#post-${postId} .post-actions button:nth-child(2) span`);
+                    if (commentBtn) {
+                        const currentCount = parseInt(commentBtn.textContent) || 0;
+                        commentBtn.textContent = currentCount + 1;
+                    }
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // ===== Share Post =====
+    function sharePost(postId) {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Check out this post on Camly',
+                url: window.location.href,
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+    }
+    
+    // ===== Get CSRF Token =====
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

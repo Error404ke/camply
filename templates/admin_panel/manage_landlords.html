@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Landlords - Camly{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="glass p-4">
+                <h2><i class="fas fa-home" style="color: var(--accent-color);"></i> Manage Landlords</h2>
+                <p class="text-muted">Approve and manage landlord accounts</p>
+                
+                <div class="table-responsive mt-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Company</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for landlord in landlords %}
+                            <tr>
+                                <td>{{ landlord.user.username }}</td>
+                                <td>{{ landlord.company_name|default:"N/A" }}</td>
+                                <td>{{ landlord.phone_number|default:"N/A" }}</td>
+                                <td>
+                                    {% if landlord.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not landlord.is_approved %}
+                                    <a href="{% url 'accounts:approve_landlord' landlord.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Approve
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'accounts:profile' landlord.user.username %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No landlords found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
