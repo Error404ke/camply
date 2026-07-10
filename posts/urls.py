@@ -11,5 +11,6 @@ urlpatterns = [
     path('like-reel/<int:reel_id>/', views.like_reel, name='like_reel'),
     path('comment/<int:post_id>/', views.add_comment, name='add_comment'),
     path('story/view/<int:story_id>/', views.view_story, name='view_story'),
+    path('stories/user/<int:user_id>/', views.get_user_stories, name='get_user_stories'),
     path('story/delete/<int:story_id>/', views.delete_story, name='delete_story'),
 ]

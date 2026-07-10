@@ -1,0 +1,315 @@
+/* ===== Clean 2D University-Themed Loading Animation ===== */
+
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a2e, #1a1a4e, #0d0d3b);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    overflow: hidden;
+}
+
+.loader-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ===== Animated Background Particles ===== */
+.loader-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.loader-particles span {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    animation: floatParticle 15s linear infinite;
+}
+
+.loader-particles span:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 12s; }
+.loader-particles span:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 18s; }
+.loader-particles span:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 14s; }
+.loader-particles span:nth-child(4) { left: 40%; animation-delay: 1s; animation-duration: 16s; }
+.loader-particles span:nth-child(5) { left: 50%; animation-delay: 3s; animation-duration: 20s; }
+.loader-particles span:nth-child(6) { left: 60%; animation-delay: 5s; animation-duration: 13s; }
+.loader-particles span:nth-child(7) { left: 70%; animation-delay: 0.5s; animation-duration: 17s; }
+.loader-particles span:nth-child(8) { left: 80%; animation-delay: 2.5s; animation-duration: 19s; }
+.loader-particles span:nth-child(9) { left: 90%; animation-delay: 4.5s; animation-duration: 15s; }
+.loader-particles span:nth-child(10) { left: 15%; animation-delay: 1.5s; animation-duration: 22s; }
+.loader-particles span:nth-child(11) { left: 45%; animation-delay: 3.5s; animation-duration: 11s; }
+.loader-particles span:nth-child(12) { left: 75%; animation-delay: 0.8s; animation-duration: 16s; }
+
+@keyframes floatParticle {
+    0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-100vh) scale(1) rotate(720deg); opacity: 0; }
+}
+
+/* ===== 2D Rotating Graduation Cap ===== */
+.loader-icon-container {
+    position: relative;
+    z-index: 1;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-icon {
+    font-size: 5rem;
+    color: #f9a825;
+    animation: bounceCap 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(249, 168, 37, 0.3));
+    position: relative;
+}
+
+@keyframes bounceCap {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.1);
+    }
+}
+
+/* Rotating ring around icon */
+.loader-ring {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border: 3px solid rgba(249, 168, 37, 0.1);
+    border-radius: 50%;
+    animation: spinRing 4s linear infinite;
+}
+
+.loader-ring:nth-child(2) {
+    width: 150px;
+    height: 150px;
+    border-color: rgba(26, 35, 126, 0.2);
+    animation-duration: 6s;
+    animation-direction: reverse;
+}
+
+.loader-ring:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    border-color: rgba(255, 255, 255, 0.05);
+    animation-duration: 3s;
+}
+
+@keyframes spinRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== Glow Effect ===== */
+.loader-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(249, 168, 37, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: glowPulse 2s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* ===== Loading Text ===== */
+.loader-brand {
+    text-align: center;
+    margin-top: 30px;
+    z-index: 1;
+}
+
+.loader-brand .brand-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #1a237e, #f9a825, #0d47a1);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 3s ease-in-out infinite;
+}
+
+@keyframes textShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.loader-brand .brand-sub {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+/* ===== Progress Bar ===== */
+.loader-progress-container {
+    width: 280px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    margin-top: 25px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.loader-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #1a237e, #f9a825, #0d47a1);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: progressFill 2.5s ease-in-out forwards;
+}
+
+@keyframes progressFill {
+    0% { width: 0%; }
+    30% { width: 25%; }
+    60% { width: 55%; }
+    85% { width: 80%; }
+    100% { width: 100%; }
+}
+
+/* ===== Loading Percentage ===== */
+.loader-percentage {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-top: 12px;
+    z-index: 1;
+}
+
+/* ===== Loading Dots Animation ===== */
+.loading-dots {
+    display: inline-block;
+    min-width: 24px;
+}
+
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+    100% { content: ''; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .loader-icon {
+        font-size: 3.5rem;
+    }
+    
+    .loader-icon-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .loader-ring {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .loader-ring:nth-child(2) {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .loader-ring:nth-child(3) {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .loader-brand .brand-name {
+        font-size: 2rem;
+    }
+    
+    .loader-progress-container {
+        width: 200px;
+    }
+    
+    .loader-glow {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .loader-icon {
+        font-size: 2.8rem;
+    }
+    
+    .loader-icon-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .loader-ring {
+        width: 60px;
+        height: 60px;
+        border-width: 2px;
+    }
+    
+    .loader-ring:nth-child(2) {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .loader-ring:nth-child(3) {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .loader-brand .brand-name {
+        font-size: 1.6rem;
+    }
+    
+    .loader-progress-container {
+        width: 160px;
+    }
+    
+    .loader-glow {
+        width: 140px;
+        height: 140px;
+    }
+}

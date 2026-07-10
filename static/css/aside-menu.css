@@ -1,0 +1,419 @@
+/* ===== Aside Menu (Sidebar) ===== */
+:root {
+    --aside-width: 280px;
+    --aside-collapsed-width: 72px;
+}
+
+/* ===== Main Layout ===== */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ===== Aside Navigation ===== */
+.aside-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--aside-width);
+    height: 100vh;
+    background: var(--navbar-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-right: 1px solid var(--glass-border);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Collapsed State */
+.aside-nav.collapsed {
+    width: var(--aside-collapsed-width);
+}
+
+.aside-nav.collapsed .nav-label,
+.aside-nav.collapsed .aside-brand-text,
+.aside-nav.collapsed .aside-toggle-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+.aside-nav.collapsed .aside-brand {
+    justify-content: center;
+    padding: 16px 0;
+}
+
+.aside-nav.collapsed .nav-item {
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.aside-nav.collapsed .nav-item .nav-icon {
+    margin-right: 0;
+}
+
+.aside-nav.collapsed .aside-footer {
+    padding: 12px 0;
+    align-items: center;
+}
+
+/* ===== Aside Brand ===== */
+.aside-brand {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    min-height: 72px;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.aside-brand-icon {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+    flex-shrink: 0;
+}
+
+.aside-brand-text {
+    font-weight: 800;
+    font-size: 1.4rem;
+    white-space: nowrap;
+    color: var(--text-primary);
+    transition: opacity 0.3s, width 0.3s;
+}
+
+/* ===== Aside Navigation Items ===== */
+.aside-nav-list {
+    flex: 1;
+    padding: 16px 12px;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+}
+
+.aside-nav-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.aside-nav-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.aside-nav-list::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 2px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 4px;
+    position: relative;
+    gap: 14px;
+}
+
+.nav-item:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background: var(--glass-bg);
+    color: var(--accent-color);
+}
+
+.nav-item.active .nav-icon {
+    color: var(--accent-color);
+}
+
+.nav-item .nav-icon {
+    font-size: 1.4rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+}
+
+.nav-item .nav-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    transition: opacity 0.3s, width 0.3s;
+}
+
+.nav-item .nav-badge {
+    background: #e74c3c;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
+    font-weight: 600;
+}
+
+/* ===== Aside Footer ===== */
+.aside-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.aside-footer:hover {
+    background: var(--glass-bg);
+}
+
+.aside-footer .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--glass-border);
+    flex-shrink: 0;
+}
+
+.aside-footer .user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.aside-footer .user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.aside-footer .user-role {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.aside-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.aside-toggle-btn:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+}
+
+.aside-toggle-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: opacity 0.3s, width 0.3s;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+    flex: 1;
+    margin-left: var(--aside-width);
+    min-height: 100vh;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aside-nav.collapsed + .main-content {
+    margin-left: var(--aside-collapsed-width);
+}
+
+/* ===== Mobile Overlay ===== */
+.aside-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    backdrop-filter: blur(3px);
+}
+
+.aside-overlay.active {
+    display: block;
+}
+
+/* ===== Mobile Hamburger ===== */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--glass-bg);
+}
+
+/* ===== Light Mode ===== */
+body.light-mode .aside-nav {
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+body.light-mode .nav-item {
+    color: #444;
+}
+
+body.light-mode .nav-item:hover {
+    background: rgba(26, 35, 126, 0.05);
+    color: #1a237e;
+}
+
+body.light-mode .nav-item.active {
+    background: rgba(26, 35, 126, 0.08);
+    color: #1a237e;
+}
+
+body.light-mode .nav-item .nav-icon {
+    color: #666;
+}
+
+body.light-mode .nav-item.active .nav-icon {
+    color: #1a237e;
+}
+
+/* ===== Dark Mode ===== */
+body.dark-mode .aside-nav {
+    background: rgba(10, 10, 30, 0.98) !important;
+}
+
+body.dark-mode .nav-item {
+    color: #bbb;
+}
+
+body.dark-mode .nav-item:hover {
+    background: rgba(249, 168, 37, 0.05);
+    color: #e8e8f0;
+}
+
+body.dark-mode .nav-item.active {
+    background: rgba(249, 168, 37, 0.08);
+    color: #f9a825;
+}
+
+body.dark-mode .nav-item .nav-icon {
+    color: #888;
+}
+
+body.dark-mode .nav-item.active .nav-icon {
+    color: #f9a825;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+    .aside-nav {
+        transform: translateX(-100%);
+        width: 300px !important;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 0 16px 16px 0;
+    }
+    
+    .aside-nav.open {
+        transform: translateX(0);
+    }
+    
+    .aside-nav .aside-brand {
+        padding: 16px 20px;
+    }
+    
+    .aside-nav .nav-label {
+        opacity: 1 !important;
+        width: auto !important;
+    }
+    
+    .aside-nav .aside-brand-text {
+        opacity: 1 !important;
+        width: auto !important;
+    }
+    
+    .aside-nav .aside-toggle-text {
+        opacity: 1 !important;
+        width: auto !important;
+    }
+    
+    .aside-nav .aside-footer {
+        padding: 16px 20px;
+    }
+    
+    .aside-nav .nav-item {
+        padding: 12px 16px;
+        justify-content: flex-start !important;
+    }
+    
+    .aside-nav .nav-item .nav-icon {
+        margin-right: 14px !important;
+    }
+    
+    .aside-nav .aside-toggle-btn {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .aside-overlay.active {
+        display: block;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .aside-nav .aside-brand {
+        justify-content: flex-start !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .aside-nav {
+        width: 280px !important;
+    }
+    
+    .aside-nav .nav-item {
+        padding: 10px 14px;
+    }
+    
+    .aside-nav .nav-item .nav-icon {
+        font-size: 1.2rem;
+        width: 20px;
+    }
+    
+    .aside-nav .aside-brand-icon {
+        font-size: 1.5rem;
+    }
+    
+    .aside-nav .aside-brand-text {
+        font-size: 1.2rem;
+    }
+}

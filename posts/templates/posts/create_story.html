@@ -5,124 +5,599 @@
 
 {% block extra_css %}
 <style>
-    .story-upload-area {
-        border: 2px dashed var(--glass-border);
-        border-radius: 16px;
-        padding: 40px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        background: var(--glass-bg);
-    }
-    
-    .story-upload-area:hover {
-        border-color: var(--accent-color);
-    }
-    
-    .story-upload-area i {
-        font-size: 4rem;
-        color: var(--text-muted);
-        margin-bottom: 15px;
+    .story-creator-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
     }
     
     .story-preview {
-        display: none;
-        margin-top: 20px;
-        border-radius: 12px;
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9/16;
+        border-radius: 16px;
         overflow: hidden;
-        max-height: 400px;
+        background: #1a237e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        min-height: 400px;
     }
     
-    .story-preview img {
+    .story-preview .preview-content {
+        position: relative;
+        z-index: 2;
         width: 100%;
-        max-height: 400px;
-        object-fit: contain;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        text-align: center;
+        color: white;
     }
     
-    .story-preview video {
-        width: 100%;
-        max-height: 400px;
+    .story-preview .preview-content img,
+    .story-preview .preview-content video {
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
+        border-radius: 8px;
+    }
+    
+    .story-preview .preview-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        padding: 15px 20px;
+        border-radius: 12px;
+        max-width: 90%;
+        word-wrap: break-word;
+    }
+    
+    .story-preview .preview-text.small { font-size: 1.2rem; }
+    .story-preview .preview-text.medium { font-size: 1.8rem; }
+    .story-preview .preview-text.large { font-size: 2.5rem; }
+    .story-preview .preview-text.xlarge { font-size: 3.5rem; }
+    
+    .story-preview .preview-text.bold { font-weight: 700; }
+    .story-preview .preview-text.italic { font-style: italic; }
+    .story-preview .preview-text.bold_italic { font-weight: 700; font-style: italic; }
+    
+    .story-preview .text-bg {
+        padding: 10px 20px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    
+    .preview-filter {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+    }
+    
+    /* Filter Previews */
+    .filter-option {
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        text-align: center;
+        background: var(--glass-bg);
+    }
+    
+    .filter-option:hover {
+        border-color: var(--accent-color);
+        transform: scale(1.05);
+    }
+    
+    .filter-option.active {
+        border-color: var(--accent-color);
+        background: var(--glass-bg);
+    }
+    
+    .filter-option .filter-preview {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        margin: 0 auto 5px;
+        background: linear-gradient(135deg, #1a237e, #0d47a1);
+        overflow: hidden;
+    }
+    
+    .filter-option .filter-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .filter-option .filter-name {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+    
+    .color-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+    
+    .color-option:hover,
+    .color-option.active {
+        border-color: var(--accent-color);
+        transform: scale(1.1);
+    }
+    
+    .controls-section {
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid var(--glass-border);
+    }
+    
+    .controls-section .section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+    
+    .slider-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .slider-group input[type="range"] {
+        flex: 1;
+        -webkit-appearance: none;
+        background: var(--glass-border);
+        height: 4px;
+        border-radius: 2px;
+        outline: none;
+    }
+    
+    .slider-group input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        cursor: pointer;
+    }
+    
+    .slider-group .value-label {
+        min-width: 35px;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+    
+    .gradient-preview {
+        width: 100%;
+        height: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid var(--glass-border);
+        transition: all 0.3s;
+    }
+    
+    .gradient-preview:hover {
+        border-color: var(--accent-color);
+    }
+    
+    /* Preset Gradients */
+    .gradient-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+    
+    .gradient-option:hover,
+    .gradient-option.active {
+        border-color: var(--accent-color);
+        transform: scale(1.1);
+    }
+    
+    @media (max-width: 576px) {
+        .story-preview .preview-text.small { font-size: 1rem; }
+        .story-preview .preview-text.medium { font-size: 1.4rem; }
+        .story-preview .preview-text.large { font-size: 2rem; }
+        .story-preview .preview-text.xlarge { font-size: 2.8rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="glass p-4">
-                <div class="text-center mb-4">
-                    <i class="fas fa-circle fa-3x" style="color: var(--accent-color);"></i>
-                    <h2 class="mt-2">Create Story</h2>
-                    <p class="text-muted">Share what's happening now (disappears in 24 hours)</p>
-                </div>
-                
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Add Media</label>
-                        <div class="story-upload-area" onclick="document.getElementById('mediaInput').click()">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <div>
-                                <strong>Click to upload</strong> or drag and drop
-                            </div>
-                            <small class="text-muted">Image or video (Max 50MB)</small>
-                        </div>
-                        <input type="file" name="media" id="mediaInput" accept="image/*,video/*" onchange="previewMedia(this)">
-                    </div>
-                    
-                    <div class="story-preview" id="storyPreview">
-                        <img id="previewImage" style="display:none;">
-                        <video id="previewVideo" controls style="display:none;"></video>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Add Text (Optional)</label>
-                        <textarea name="content" class="glass-input" rows="2" placeholder="What's on your mind?" style="resize: vertical;"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="glass-btn glass-btn-primary w-100 py-3">
-                        <i class="fas fa-plus-circle me-2"></i> Post Story
-                    </button>
-                </form>
-                
-                <div class="mt-3">
-                    <a href="{% url 'home' %}" class="btn w-100" style="background: var(--glass-bg); border: 1px solid var(--glass-border);">
-                        <i class="fas fa-arrow-left me-2"></i> Cancel
-                    </a>
-                </div>
+<div class="story-creator-container">
+    <h2 class="text-center mb-3"><i class="fas fa-circle" style="color: var(--accent-color);"></i> Create Story</h2>
+    
+    <!-- Story Preview -->
+    <div class="story-preview" id="storyPreview">
+        <div class="preview-filter" id="previewFilter"></div>
+        <div class="preview-content" id="previewContent">
+            <div class="preview-text" id="previewText">
+                <span class="text-bg" id="textBg">
+                    <span id="textContent">Add your story text</span>
+                </span>
+            </div>
+            <div id="mediaPreview" style="display: none; width: 100%; height: 100%;">
+                <img id="previewImage" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                <video id="previewVideo" style="display: none; width: 100%; height: 100%; object-fit: cover;" controls></video>
             </div>
         </div>
     </div>
+    
+    <form method="POST" enctype="multipart/form-data" id="storyForm">
+        {% csrf_token %}
+        
+        <!-- Media Upload -->
+        <div class="controls-section">
+            <div class="section-title"><i class="fas fa-image"></i> Media</div>
+            <input type="file" name="media" id="mediaInput" accept="image/*,video/*" onchange="previewMedia(this)">
+            <small class="text-muted">Upload an image or video (optional)</small>
+        </div>
+        
+        <!-- Text Controls -->
+        <div class="controls-section">
+            <div class="section-title"><i class="fas fa-font"></i> Text</div>
+            <div class="mb-2">
+                <input type="text" name="content" id="textInput" class="glass-input" placeholder="Type your story text..." oninput="updateText()">
+            </div>
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label small">Text Color</label>
+                    <input type="color" name="text_color" id="textColor" value="#ffffff" onchange="updateTextStyle()" class="form-control form-control-color">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Text Size</label>
+                    <select name="text_size" id="textSize" class="glass-input" onchange="updateTextStyle()">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                        <option value="xlarge">Extra Large</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Text Style</label>
+                    <select name="text_style" id="textStyle" class="glass-input" onchange="updateTextStyle()">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="italic">Italic</option>
+                        <option value="bold_italic">Bold Italic</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Text Background</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="checkbox" name="text_background" id="textBackground" onchange="updateTextStyle()">
+                        <label class="small">Enable</label>
+                        <input type="color" name="text_bg_color" id="textBgColor" value="rgba(0,0,0,0.5)" onchange="updateTextStyle()" class="form-control form-control-color" style="width: 40px; padding: 2px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Background Controls -->
+        <div class="controls-section">
+            <div class="section-title"><i class="fas fa-palette"></i> Background</div>
+            
+            <div class="mb-2">
+                <label class="form-label small">Background Type</label>
+                <select name="background_type" id="bgType" class="glass-input" onchange="updateBackground()">
+                    <option value="solid">Solid Color</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="image">Image</option>
+                </select>
+            </div>
+            
+            <!-- Solid Colors -->
+            <div id="solidColors">
+                <label class="form-label small">Choose Color</label>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <div class="color-option active" style="background: #1a237e;" onclick="selectColor('#1a237e', this)"></div>
+                    <div class="color-option" style="background: #0d47a1;" onclick="selectColor('#0d47a1', this)"></div>
+                    <div class="color-option" style="background: #e74c3c;" onclick="selectColor('#e74c3c', this)"></div>
+                    <div class="color-option" style="background: #2ecc71;" onclick="selectColor('#2ecc71', this)"></div>
+                    <div class="color-option" style="background: #f39c12;" onclick="selectColor('#f39c12', this)"></div>
+                    <div class="color-option" style="background: #9b59b6;" onclick="selectColor('#9b59b6', this)"></div>
+                    <div class="color-option" style="background: #1abc9c;" onclick="selectColor('#1abc9c', this)"></div>
+                    <div class="color-option" style="background: #e67e22;" onclick="selectColor('#e67e22', this)"></div>
+                </div>
+                <input type="color" name="background_color" id="bgColor" value="#1a237e" onchange="updateBackground()" class="form-control form-control-color">
+            </div>
+            
+            <!-- Gradients -->
+            <div id="gradientSection" style="display: none;">
+                <label class="form-label small">Choose Gradient</label>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <div class="gradient-option active" style="background: linear-gradient(135deg, #1a237e, #0d47a1);" onclick="selectGradient('#1a237e', '#0d47a1', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="selectGradient('#e74c3c', '#c0392b', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #2ecc71, #27ae60);" onclick="selectGradient('#2ecc71', '#27ae60', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #f39c12, #e67e22);" onclick="selectGradient('#f39c12', '#e67e22', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="selectGradient('#9b59b6', '#8e44ad', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #1abc9c, #16a085);" onclick="selectGradient('#1abc9c', '#16a085', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #e74c3c, #f39c12);" onclick="selectGradient('#e74c3c', '#f39c12', this)"></div>
+                    <div class="gradient-option" style="background: linear-gradient(135deg, #2ecc71, #3498db);" onclick="selectGradient('#2ecc71', '#3498db', this)"></div>
+                </div>
+                <input type="color" name="gradient_start" id="gradientStart" value="#1a237e" onchange="updateBackground()" class="form-control form-control-color" style="display: inline-block; width: 48%;">
+                <input type="color" name="gradient_end" id="gradientEnd" value="#0d47a1" onchange="updateBackground()" class="form-control form-control-color" style="display: inline-block; width: 48%; float: right;">
+            </div>
+            
+            <!-- Background Image -->
+            <div id="bgImageSection" style="display: none;">
+                <label class="form-label small">Upload Background Image</label>
+                <input type="file" name="background_image" id="bgImageInput" accept="image/*" onchange="previewBackgroundImage(this)" class="glass-input">
+            </div>
+        </div>
+        
+        <!-- Filters & Effects -->
+        <div class="controls-section">
+            <div class="section-title"><i class="fas fa-magic"></i> Filters & Effects</div>
+            
+            <div class="mb-2">
+                <label class="form-label small">Filter</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="filter-option active" onclick="selectFilter('normal', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1);"></div>
+                        <span class="filter-name">Normal</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('bright', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: brightness(1.3) contrast(1.1);"></div>
+                        <span class="filter-name">Bright</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('vintage', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: brightness(0.9) contrast(1.2) sepia(0.3);"></div>
+                        <span class="filter-name">Vintage</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('mono', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: grayscale(1) brightness(1.1) contrast(1.2);"></div>
+                        <span class="filter-name">Mono</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('warm', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: brightness(1.1) saturate(1.2) hue-rotate(-10deg);"></div>
+                        <span class="filter-name">Warm</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('cool', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: brightness(1.1) saturate(1.1) hue-rotate(20deg);"></div>
+                        <span class="filter-name">Cool</span>
+                    </div>
+                    <div class="filter-option" onclick="selectFilter('dramatic', this)">
+                        <div class="filter-preview" style="background: linear-gradient(135deg, #1a237e, #0d47a1); filter: contrast(1.4) brightness(0.9) saturate(1.3);"></div>
+                        <span class="filter-name">Dramatic</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label small">Brightness</label>
+                    <div class="slider-group">
+                        <input type="range" name="brightness" id="brightness" min="0" max="2" step="0.1" value="1.0" oninput="updateFilter()">
+                        <span class="value-label" id="brightnessLabel">1.0</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Contrast</label>
+                    <div class="slider-group">
+                        <input type="range" name="contrast" id="contrast" min="0" max="2" step="0.1" value="1.0" oninput="updateFilter()">
+                        <span class="value-label" id="contrastLabel">1.0</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Saturation</label>
+                    <div class="slider-group">
+                        <input type="range" name="saturation" id="saturation" min="0" max="2" step="0.1" value="1.0" oninput="updateFilter()">
+                        <span class="value-label" id="saturationLabel">1.0</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Blur</label>
+                    <div class="slider-group">
+                        <input type="range" name="blur" id="blur" min="0" max="10" step="0.5" value="0" oninput="updateFilter()">
+                        <span class="value-label" id="blurLabel">0px</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="glass-btn glass-btn-primary w-100 py-3">
+            <i class="fas fa-plus-circle me-2"></i> Post Story
+        </button>
+    </form>
 </div>
 
+<!-- ===== JAVASCRIPT ===== -->
 <script>
+    let currentFilter = 'normal';
+    let selectedColor = '#1a237e';
+    let selectedGradientStart = '#1a237e';
+    let selectedGradientEnd = '#0d47a1';
+    
+    // ===== Text Controls =====
+    function updateText() {
+        const text = document.getElementById('textInput').value || 'Add your story text';
+        document.getElementById('textContent').textContent = text;
+    }
+    
+    function updateTextStyle() {
+        const color = document.getElementById('textColor').value;
+        const size = document.getElementById('textSize').value;
+        const style = document.getElementById('textStyle').value;
+        const bgEnabled = document.getElementById('textBackground').checked;
+        const bgColor = document.getElementById('textBgColor').value;
+        
+        const textEl = document.getElementById('textContent');
+        const textBg = document.getElementById('textBg');
+        
+        textEl.style.color = color;
+        textEl.className = size + ' ' + style;
+        
+        if (bgEnabled) {
+            textBg.style.backgroundColor = bgColor;
+            textBg.style.padding = '10px 20px';
+            textBg.style.borderRadius = '12px';
+            textBg.style.display = 'inline-block';
+        } else {
+            textBg.style.backgroundColor = 'transparent';
+            textBg.style.padding = '0';
+            textBg.style.borderRadius = '0';
+            textBg.style.display = 'inline';
+        }
+    }
+    
+    // ===== Media Preview =====
     function previewMedia(input) {
-        const preview = document.getElementById('storyPreview');
-        const imgPreview = document.getElementById('previewImage');
-        const videoPreview = document.getElementById('previewVideo');
+        const previewImage = document.getElementById('previewImage');
+        const previewVideo = document.getElementById('previewVideo');
+        const mediaPreview = document.getElementById('mediaPreview');
+        const previewText = document.getElementById('previewText');
         
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                preview.style.display = 'block';
+                mediaPreview.style.display = 'block';
+                previewText.style.display = 'none';
                 
                 if (file.type.startsWith('image/')) {
-                    imgPreview.style.display = 'block';
-                    videoPreview.style.display = 'none';
-                    imgPreview.src = e.target.result;
+                    previewImage.style.display = 'block';
+                    previewVideo.style.display = 'none';
+                    previewImage.src = e.target.result;
                 } else if (file.type.startsWith('video/')) {
-                    imgPreview.style.display = 'none';
-                    videoPreview.style.display = 'block';
-                    videoPreview.src = e.target.result;
+                    previewImage.style.display = 'none';
+                    previewVideo.style.display = 'block';
+                    previewVideo.src = e.target.result;
                 }
             };
             reader.readAsDataURL(file);
+        } else {
+            mediaPreview.style.display = 'none';
+            previewText.style.display = 'flex';
         }
     }
+    
+    // ===== Background Controls =====
+    function updateBackground() {
+        const type = document.getElementById('bgType').value;
+        const preview = document.getElementById('storyPreview');
+        const solidColors = document.getElementById('solidColors');
+        const gradientSection = document.getElementById('gradientSection');
+        const bgImageSection = document.getElementById('bgImageSection');
+        
+        solidColors.style.display = type === 'solid' ? 'block' : 'none';
+        gradientSection.style.display = type === 'gradient' ? 'block' : 'none';
+        bgImageSection.style.display = type === 'image' ? 'block' : 'none';
+        
+        if (type === 'solid') {
+            const color = document.getElementById('bgColor').value;
+            preview.style.background = color;
+            selectedColor = color;
+        } else if (type === 'gradient') {
+            const start = document.getElementById('gradientStart').value;
+            const end = document.getElementById('gradientEnd').value;
+            preview.style.background = `linear-gradient(135deg, ${start}, ${end})`;
+        } else if (type === 'image') {
+            // Will be handled by file input
+        }
+    }
+    
+    function selectColor(color, el) {
+        document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('bgColor').value = color;
+        document.getElementById('storyPreview').style.background = color;
+        selectedColor = color;
+    }
+    
+    function selectGradient(start, end, el) {
+        document.querySelectorAll('.gradient-option').forEach(g => g.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('gradientStart').value = start;
+        document.getElementById('gradientEnd').value = end;
+        document.getElementById('storyPreview').style.background = `linear-gradient(135deg, ${start}, ${end})`;
+        selectedGradientStart = start;
+        selectedGradientEnd = end;
+    }
+    
+    function previewBackgroundImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('storyPreview').style.backgroundImage = `url(${e.target.result})`;
+                document.getElementById('storyPreview').style.backgroundSize = 'cover';
+                document.getElementById('storyPreview').style.backgroundPosition = 'center';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // ===== Filters =====
+    function selectFilter(filter, el) {
+        document.querySelectorAll('.filter-option').forEach(f => f.classList.remove('active'));
+        el.classList.add('active');
+        currentFilter = filter;
+        updateFilter();
+    }
+    
+    function updateFilter() {
+        const brightness = document.getElementById('brightness').value;
+        const contrast = document.getElementById('contrast').value;
+        const saturation = document.getElementById('saturation').value;
+        const blur = document.getElementById('blur').value;
+        
+        document.getElementById('brightnessLabel').textContent = brightness;
+        document.getElementById('contrastLabel').textContent = contrast;
+        document.getElementById('saturationLabel').textContent = saturation;
+        document.getElementById('blurLabel').textContent = blur + 'px';
+        
+        const filterEl = document.getElementById('previewFilter');
+        let filterStyle = '';
+        
+        if (currentFilter === 'bright') {
+            filterStyle = `brightness(1.3) contrast(1.1)`;
+        } else if (currentFilter === 'vintage') {
+            filterStyle = `brightness(0.9) contrast(1.2) sepia(0.3)`;
+        } else if (currentFilter === 'mono') {
+            filterStyle = `grayscale(1) brightness(1.1) contrast(1.2)`;
+        } else if (currentFilter === 'warm') {
+            filterStyle = `brightness(1.1) saturate(1.2) hue-rotate(-10deg)`;
+        } else if (currentFilter === 'cool') {
+            filterStyle = `brightness(1.1) saturate(1.1) hue-rotate(20deg)`;
+        } else if (currentFilter === 'dramatic') {
+            filterStyle = `contrast(1.4) brightness(0.9) saturate(1.3)`;
+        } else {
+            filterStyle = `brightness(${brightness}) contrast(${contrast}) saturate(${saturation})`;
+        }
+        
+        if (parseFloat(blur) > 0) {
+            filterStyle += ` blur(${blur}px)`;
+        }
+        
+        filterEl.style.filter = filterStyle;
+    }
+    
+    // ===== Update Background on load =====
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBackground();
+        updateTextStyle();
+        updateFilter();
+    });
 </script>
 {% endblock %}

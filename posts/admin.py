@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import mark_safe
-from .models import Post, Comment, Reel
+from .models import Post, Comment, Reel, Story
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -32,3 +32,14 @@ class ReelAdmin(admin.ModelAdmin):
     def caption_preview(self, obj):
         return obj.caption[:50] + '...' if len(obj.caption) > 50 else obj.caption
     caption_preview.short_description = 'Caption'
+
+@admin.register(Story)
+class StoryAdmin(admin.ModelAdmin):
+    list_display = ['user', 'content_preview', 'get_views_count', 'created_at', 'expires_at']
+    list_filter = ['is_active', 'background_type', 'filter_type']
+    search_fields = ['user__username', 'content']
+    readonly_fields = ['created_at']
+    
+    def content_preview(self, obj):
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_preview.short_description = 'Content'

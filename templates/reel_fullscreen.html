@@ -8,29 +8,32 @@
         
         <div class="reel-container" id="reelContainer">
             <div class="reel-video-wrapper" id="reelVideoWrapper">
-                <video id="reelFullVideo" controls autoplay playsinline>
+                <div class="reel-spinner" id="reelSpinner"></div>
+                <video id="reelFullVideo" controls playsinline>
                     <source src="" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
+                
+                <!-- Swipe Up Indicator -->
+                <div class="swipe-indicator" id="swipeIndicator">
+                    <span>Swipe up for next reel</span>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
             </div>
             
             <div class="reel-info">
                 <div class="reel-user-info">
                     <div class="reel-avatar-wrapper">
-                        {% if user.profile.profile_picture %}
-                        <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="reel-avatar">
-                        {% else %}
-                        <div class="reel-avatar-placeholder">
+                        <div class="reel-avatar-placeholder" id="reelAvatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        {% endif %}
                     </div>
-                    <div class="reel-username">{{ user.username }}</div>
+                    <div class="reel-username" id="reelUsername">Username</div>
                 </div>
                 
                 <div class="reel-caption-full" id="reelCaptionFull">
-                    <span class="reel-username-small">{{ user.username }}</span>
-                    <span class="reel-caption-text"></span>
+                    <span class="reel-username-small" id="reelUsernameSmall">@username</span>
+                    <span class="reel-caption-text" id="reelCaptionText">No caption</span>
                 </div>
                 
                 <div class="reel-actions">
@@ -46,6 +49,12 @@
                 <div class="reel-views-info">
                     <i class="fas fa-eye"></i>
                     <span id="reelViewsCount">0</span> views
+                </div>
+                
+                <div class="reel-progress-container">
+                    <div class="reel-progress-bar" id="reelProgressBar">
+                        <div class="reel-progress-fill" id="reelProgressFill"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -120,6 +129,7 @@
         flex-direction: column;
         height: 100%;
         background: #000;
+        position: relative;
     }
     
     .reel-video-wrapper {
@@ -130,6 +140,8 @@
         background: #000;
         position: relative;
         overflow: hidden;
+        min-height: 0;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .reel-video-wrapper video {
@@ -138,14 +150,113 @@
         object-fit: cover;
     }
     
+    /* ===== Swipe Indicator ===== */
+    .swipe-indicator {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        text-align: center;
+        animation: bounceUp 2s ease-in-out infinite;
+        display: none;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 8px 16px;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .swipe-indicator i {
+        display: block;
+        font-size: 1.5rem;
+        margin-top: 4px;
+    }
+    
+    @keyframes bounceUp {
+        0%, 100% {
+            transform: translateX(-50%) translateY(0);
+            opacity: 0.5;
+        }
+        50% {
+            transform: translateX(-50%) translateY(-10px);
+            opacity: 1;
+        }
+    }
+    
+    .swipe-indicator.show {
+        display: block;
+    }
+    
+    /* ===== Navigation Buttons ===== */
+    .reel-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.3);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 60px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        backdrop-filter: blur(5px);
+        z-index: 50;
+        opacity: 0.7;
+    }
+    
+    .reel-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        opacity: 1;
+    }
+    
+    .reel-nav-btn.prev {
+        left: 0;
+        border-radius: 0 12px 12px 0;
+    }
+    
+    .reel-nav-btn.next {
+        right: 0;
+        border-radius: 12px 0 0 12px;
+    }
+    
+    @media (max-width: 600px) {
+        .reel-nav-btn {
+            display: none;
+        }
+        .swipe-indicator.show {
+            display: block;
+        }
+    }
+    
+    /* ===== Reel Info ===== */
     .reel-info {
         padding: 16px 20px;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4), transparent);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.4), transparent);
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
         color: white;
+        max-height: 40%;
+        overflow-y: auto;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .reel-info::-webkit-scrollbar {
+        width: 3px;
+    }
+    
+    .reel-info::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .reel-info::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
     }
     
     .reel-user-info {
@@ -190,6 +301,7 @@
         margin-bottom: 12px;
         font-size: 0.95rem;
         line-height: 1.4;
+        flex-wrap: wrap;
     }
     
     .reel-username-small {
@@ -243,35 +355,28 @@
         gap: 6px;
     }
     
-    /* ===== Swipe/Click Navigation ===== */
-    .reel-nav-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(0, 0, 0, 0.4);
-        border: none;
-        color: white;
-        width: 40px;
-        height: 80px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        backdrop-filter: blur(5px);
-        z-index: 50;
+    /* ===== Reel Progress Bar ===== */
+    .reel-progress-container {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .reel-nav-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+    .reel-progress-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
     }
     
-    .reel-nav-btn.prev {
-        left: 0;
-        border-radius: 0 10px 10px 0;
-    }
-    
-    .reel-nav-btn.next {
-        right: 0;
-        border-radius: 10px 0 0 10px;
+    .reel-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #f9a825, #ffd54f);
+        border-radius: 2px;
+        transition: width 0.3s ease;
     }
     
     /* ===== Loading Spinner ===== */
@@ -294,6 +399,38 @@
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
     
+    /* ===== Reel Counter ===== */
+    .reel-counter {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        z-index: 50;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 4px 14px;
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* ===== Smooth Transition ===== */
+    .reel-transition {
+        animation: reelSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes reelSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
     /* ===== Responsive ===== */
     @media (max-width: 600px) {
         .reel-modal-content {
@@ -306,6 +443,7 @@
         
         .reel-info {
             padding: 12px 16px;
+            max-height: 35%;
         }
         
         .reel-close-btn {
@@ -328,55 +466,182 @@
         .reel-caption-full {
             font-size: 0.85rem;
         }
+        
+        .reel-counter {
+            top: 12px;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+        }
     }
 </style>
 
 <script>
+    let allReels = [];
+    let currentReelIndex = 0;
     let currentReelData = null;
     let reelLiked = false;
+    let progressInterval = null;
+    let isVideoPlaying = false;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let isTransitioning = false;
     
-    function openReel(videoUrl, caption, username, views) {
+    function openReel(element) {
+        // Get reel data from the data attribute
+        const reelData = JSON.parse(element.dataset.reel);
+        
+        // Get all reel elements and build the reels array
+        const reelItems = document.querySelectorAll('.reel-item');
+        allReels = [];
+        reelItems.forEach(item => {
+            allReels.push(JSON.parse(item.dataset.reel));
+        });
+        
+        // Find the index of the clicked reel
+        currentReelIndex = allReels.findIndex(r => r.id === reelData.id);
+        if (currentReelIndex === -1) currentReelIndex = 0;
+        
+        // Show swipe indicator if more than one reel
+        const swipeIndicator = document.getElementById('swipeIndicator');
+        if (allReels.length > 1) {
+            swipeIndicator.classList.add('show');
+            setTimeout(() => {
+                swipeIndicator.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Open the reel
+        loadReelByIndex(currentReelIndex);
+    }
+    
+    function loadReelByIndex(index, direction = 'up') {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        const reel = allReels[index];
+        if (!reel) {
+            isTransitioning = false;
+            return;
+        }
+        
+        currentReelIndex = index;
         const modal = document.getElementById('reelModal');
         const video = document.getElementById('reelFullVideo');
-        const captionText = document.querySelector('.reel-caption-text');
-        const usernameSmall = document.querySelector('.reel-username-small');
+        const captionText = document.getElementById('reelCaptionText');
+        const usernameSmall = document.getElementById('reelUsernameSmall');
+        const usernameLarge = document.getElementById('reelUsername');
         const viewsCount = document.getElementById('reelViewsCount');
         const likeCount = document.getElementById('reelLikeCount');
         const likeBtn = document.getElementById('reelLikeBtn');
+        const spinner = document.getElementById('reelSpinner');
+        const progressFill = document.getElementById('reelProgressFill');
+        const videoWrapper = document.getElementById('reelVideoWrapper');
+        const info = document.querySelector('.reel-info');
+        
+        // Reset progress
+        progressFill.style.width = '0%';
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
         
         // Set video source
+        spinner.style.display = 'block';
         const source = video.querySelector('source');
-        source.src = videoUrl;
+        source.src = reel.videoUrl;
         video.load();
-        video.play();
+        
+        video.onloadeddata = function() {
+            spinner.style.display = 'none';
+            video.play();
+            isVideoPlaying = true;
+            startProgress();
+        };
         
         // Set caption and user info
-        captionText.textContent = caption || 'No caption';
-        usernameSmall.textContent = username;
-        viewsCount.textContent = views || 0;
+        captionText.textContent = reel.caption || 'No caption';
+        usernameSmall.textContent = '@' + reel.username;
+        usernameLarge.textContent = reel.username;
+        viewsCount.textContent = reel.views || 0;
         likeCount.textContent = 0;
         likeBtn.classList.remove('liked');
         reelLiked = false;
         
+        // Update counter
+        updateCounter();
+        
         // Store data
-        currentReelData = {
-            videoUrl: videoUrl,
-            caption: caption,
-            username: username,
-            views: views
-        };
+        currentReelData = reel;
+        
+        // Add smooth transition animation
+        videoWrapper.classList.remove('reel-transition');
+        info.classList.remove('reel-transition');
+        
+        // Trigger reflow
+        void videoWrapper.offsetWidth;
+        
+        videoWrapper.classList.add('reel-transition');
+        info.classList.add('reel-transition');
         
         // Show modal
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 500);
+    }
+    
+    function updateCounter() {
+        let counter = document.querySelector('.reel-counter');
+        if (allReels.length > 1) {
+            if (!counter) {
+                counter = document.createElement('div');
+                counter.className = 'reel-counter';
+                const modalContent = document.querySelector('.reel-modal-content');
+                modalContent.appendChild(counter);
+            }
+            counter.textContent = `${currentReelIndex + 1} / ${allReels.length}`;
+            counter.style.display = 'block';
+        } else if (counter) {
+            counter.style.display = 'none';
+        }
+    }
+    
+    function startProgress() {
+        const progressFill = document.getElementById('reelProgressFill');
+        let progress = 0;
+        if (progressInterval) clearInterval(progressInterval);
+        
+        progressInterval = setInterval(function() {
+            progress += 0.5;
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                // Auto-advance to next reel with smooth animation
+                setTimeout(function() {
+                    if (allReels.length > 1) {
+                        nextReel(null);
+                    }
+                }, 500);
+            } else {
+                progressFill.style.width = progress + '%';
+            }
+        }, 50);
     }
     
     function closeReel() {
         const modal = document.getElementById('reelModal');
         const video = document.getElementById('reelFullVideo');
         video.pause();
+        isVideoPlaying = false;
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        document.getElementById('reelProgressFill').style.width = '0%';
     }
     
     function toggleReelLike() {
@@ -410,10 +675,85 @@
         }
     }
     
-    // Close modal on Escape key
+    function nextReel(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        if (!allReels.length || allReels.length <= 1 || isTransitioning) return;
+        
+        const nextIndex = (currentReelIndex + 1) % allReels.length;
+        loadReelByIndex(nextIndex, 'up');
+    }
+    
+    function prevReel(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        if (!allReels.length || allReels.length <= 1 || isTransitioning) return;
+        
+        const prevIndex = (currentReelIndex - 1 + allReels.length) % allReels.length;
+        loadReelByIndex(prevIndex, 'down');
+    }
+    
+    // ===== Touch Swipe Support for Upward Scroll =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('reelModal');
+        const videoWrapper = document.getElementById('reelVideoWrapper');
+        
+        modal.addEventListener('touchstart', function(e) {
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+        
+        modal.addEventListener('touchmove', function(e) {
+            // Prevent default to stop page scroll
+            e.preventDefault();
+        }, { passive: false });
+        
+        modal.addEventListener('touchend', function(e) {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+        
+        // Mouse wheel support for desktop
+        modal.addEventListener('wheel', function(e) {
+            if (e.deltaY > 0) {
+                // Scrolling down - next reel
+                nextReel(e);
+            } else if (e.deltaY < 0) {
+                // Scrolling up - previous reel
+                prevReel(e);
+            }
+        }, { passive: true });
+    });
+    
+    function handleSwipe() {
+        const swipeThreshold = 80;
+        const difference = touchStartY - touchEndY;
+        
+        if (Math.abs(difference) > swipeThreshold) {
+            if (difference > 0) {
+                // Swipe Up - Next Reel
+                nextReel(null);
+            } else {
+                // Swipe Down - Previous Reel
+                prevReel(null);
+            }
+        }
+    }
+    
+    // ===== Keyboard Navigation =====
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeReel();
+        if (document.getElementById('reelModal').style.display === 'flex') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                nextReel(null);
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                prevReel(null);
+                e.preventDefault();
+            } else if (e.key === 'Escape') {
+                closeReel();
+                e.preventDefault();
+            }
         }
     });
     
@@ -421,6 +761,25 @@
     document.getElementById('reelModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeReel();
+        }
+    });
+    
+    // Pause video when not visible
+    document.addEventListener('visibilitychange', function() {
+        const video = document.getElementById('reelFullVideo');
+        if (document.hidden) {
+            video.pause();
+            isVideoPlaying = false;
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        } else {
+            if (document.getElementById('reelModal').style.display === 'flex') {
+                video.play();
+                isVideoPlaying = true;
+                startProgress();
+            }
         }
     });
 </script>

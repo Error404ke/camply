@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from .models import Profile
-from .forms import StudentRegistrationForm, LandlordRegistrationForm
 
 # ===== DECORATORS =====
 
@@ -68,71 +67,35 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
     
-    user_type = request.GET.get('type', 'student')
-    
-    # Only allow student and landlord registration through public forms
-    if user_type == 'admin':
-        messages.error(request, 'Admin accounts can only be created by superusers.')
-        return redirect('accounts:register')
-    
-    if user_type == 'landlord':
-        form_class = LandlordRegistrationForm
-        template = 'accounts/register_landlord.html'
-    else:
-        form_class = StudentRegistrationForm
-        template = 'accounts/register_student.html'
-    
     if request.method == 'POST':
-        form = form_class(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            
-            # Create user
-            user = User.objects.create_user(username=username, email=email, password=password)
-            
-            # Create profile with role-specific data
-            profile = Profile.objects.create(user=user, user_type=user_type)
-            
-            # Common fields
-            profile.full_name = form.cleaned_data.get('full_name', '')
-            profile.phone_number = form.cleaned_data.get('phone_number', '')
-            
-            # Role-specific fields
-            if user_type == 'student':
-                profile.student_id = form.cleaned_data.get('student_id', '')
-                profile.course = form.cleaned_data.get('course', '')
-                profile.year_of_study = form.cleaned_data.get('year_of_study')
-                
-            elif user_type == 'landlord':
-                profile.company_name = form.cleaned_data.get('company_name', '')
-                profile.company_registration = form.cleaned_data.get('company_registration', '')
-                profile.id_number = form.cleaned_data.get('id_number', '')
-                profile.address = form.cleaned_data.get('address', '')
-                profile.is_approved = False
-                messages.info(request, 'Your landlord account is pending approval by an admin.')
-            
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+        user_type = request.POST.get('user_type', 'student')
+        
+        if password != password2:
+            messages.error(request, 'Passwords do not match')
+            return render(request, 'accounts/register.html')
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return render(request, 'accounts/register.html')
+        
+        user = User.objects.create_user(username=username, email=email, password=password)
+        profile = Profile.objects.create(user=user, user_type=user_type)
+        
+        if user_type == 'landlord':
+            profile.is_approved = False
             profile.save()
-            
-            # Log the user in
-            login(request, user)
-            messages.success(request, f'Welcome to Camly! You are registered as {profile.get_user_type_display()}.')
-            
-            return redirect(profile.get_dashboard_url())
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-    else:
-        form = form_class()
+            messages.info(request, 'Your landlord account is pending approval by an admin.')
+        
+        login(request, user)
+        messages.success(request, f'Welcome to Camly! You are registered as {profile.get_user_type_display()}.')
+        
+        return redirect(profile.get_dashboard_url())
     
-    context = {
-        'form': form,
-        'user_type': user_type,
-        'title': f'Register as {user_type.title()}',
-    }
-    return render(request, template, context)
+    return render(request, 'accounts/register.html')
 
 # ===== PROFILE VIEWS =====
 
@@ -170,6 +133,8 @@ def edit_profile(request):
     if request.method == 'POST':
         profile.bio = request.POST.get('bio', '')
         profile.location = request.POST.get('location', '')
+        profile.course = request.POST.get('course', '')
+        profile.year_of_study = request.POST.get('year_of_study') or None
         profile.theme = request.POST.get('theme', 'light')
         
         profile.email_privacy = request.POST.get('email_privacy', 'private')
@@ -180,16 +145,9 @@ def edit_profile(request):
         if request.FILES.get('profile_picture'):
             profile.profile_picture = request.FILES.get('profile_picture')
         
-        if profile.user_type == 'student':
-            profile.course = request.POST.get('course', '')
-            profile.year_of_study = request.POST.get('year_of_study') or None
-            profile.student_id = request.POST.get('student_id', '')
-        elif profile.user_type == 'landlord':
+        if profile.user_type == 'landlord':
             profile.company_name = request.POST.get('company_name', '')
-            profile.company_registration = request.POST.get('company_registration', '')
-            profile.id_number = request.POST.get('id_number', '')
             profile.phone_number = request.POST.get('phone_number', '')
-            profile.address = request.POST.get('address', '')
         
         profile.save()
         messages.success(request, 'Profile updated successfully!')
