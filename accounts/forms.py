@@ -1,72 +1,39 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import Profile
+from django.contrib.auth.forms import UserCreationForm
+from django.core.files.base import ContentFile
+import base64
+from .models import User
 
-class StudentRegistrationForm(forms.ModelForm):
-    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Choose a username'}))
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Create a password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Confirm password'}))
-    
-    full_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your full name'}))
-    student_id = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your student ID'}))
-    course = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your course'}))
-    year_of_study = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class': 'glass-input', 'placeholder': 'Year of study (1-6)'}))
-    phone_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Phone number (optional)'}))
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    full_name = forms.CharField(max_length=200, required=True)
+    profile_picture = forms.ImageField(required=False)
+    user_type = forms.ChoiceField(
+        choices=[
+            ('student', 'Student'),
+            ('landlord', 'Landlord'),
+        ],
+        required=True
+    )
     
     class Meta:
-        model = Profile
-        fields = ['full_name', 'student_id', 'course', 'year_of_study', 'phone_number']
+        model = User
+        fields = ['username', 'email', 'full_name', 'user_type', 'profile_picture', 'password1', 'password2']
     
-    def clean_password2(self):
-        password = self.cleaned_data.get('password')
-        password2 = self.cleaned_data.get('password2')
-        if password and password2 and password != password2:
-            raise forms.ValidationError('Passwords do not match')
-        return password2
-
-class LandlordRegistrationForm(forms.ModelForm):
-    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Choose a username'}))
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Create a password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Confirm password'}))
-    
-    full_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your full name'}))
-    company_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Company/Property name'}))
-    company_registration = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Business registration number'}))
-    id_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'National ID/Passport number'}))
-    phone_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Phone number'}))
-    address = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'glass-input', 'rows': 3, 'placeholder': 'Physical address'}))
-    
-    class Meta:
-        model = Profile
-        fields = ['full_name', 'company_name', 'company_registration', 'id_number', 'phone_number', 'address']
-    
-    def clean_password2(self):
-        password = self.cleaned_data.get('password')
-        password2 = self.cleaned_data.get('password2')
-        if password and password2 and password != password2:
-            raise forms.ValidationError('Passwords do not match')
-        return password2
-
-class AdminRegistrationForm(forms.ModelForm):
-    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Choose a username'}))
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Create a password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'glass-input', 'placeholder': 'Confirm password'}))
-    
-    full_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Enter your full name'}))
-    staff_id = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Staff ID'}))
-    department = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Department'}))
-    phone_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'Phone number'}))
-    
-    class Meta:
-        model = Profile
-        fields = ['full_name', 'staff_id', 'department', 'phone_number']
-    
-    def clean_password2(self):
-        password = self.cleaned_data.get('password')
-        password2 = self.cleaned_data.get('password2')
-        if password and password2 and password != password2:
-            raise forms.ValidationError('Passwords do not match')
-        return password2
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.full_name = self.cleaned_data['full_name']
+        user.user_type = self.cleaned_data['user_type']
+        
+        if commit:
+            user.save()
+            # Handle profile picture separately after user is saved
+            if self.cleaned_data.get('profile_picture'):
+                try:
+                    # Save the file directly
+                    profile_pic = self.cleaned_data['profile_picture']
+                    user.profile_picture.save(profile_pic.name, profile_pic, save=True)
+                except Exception as e:
+                    print(f"Error saving profile picture: {e}")
+        return user

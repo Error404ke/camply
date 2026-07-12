@@ -1,8 +1,9 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-camly-secret-key-change-in-production'
+SECRET_KEY = 'django-insecure-your-secret-key-here'
 
 DEBUG = True
 
@@ -16,6 +17,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'home',
+    'stories',
     'chat',
     'groups',
     'events',
@@ -25,7 +28,6 @@ INSTALLED_APPS = [
     'profiles',
     'slides',
     'notify',
-    'posts',  # Added posts app
 ]
 
 MIDDLEWARE = [
@@ -81,7 +83,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Nairobi'
+TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
@@ -94,6 +96,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'accounts.User'
+
+# Authentication - use direct URL paths
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

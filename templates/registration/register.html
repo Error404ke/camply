@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camly - Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 40%, #0d0d3b 100%);
+            padding: 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(249, 168, 37, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 32px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+            margin: 20px auto;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        
+        .container::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(249, 168, 37, 0.3);
+            border-radius: 10px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .logo h1 {
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo h1 i {
+            color: #f9a825;
+            margin-right: 8px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            margin-bottom: 24px;
+            letter-spacing: 0.3px;
+        }
+        
+        .form-group {
+            margin-bottom: 14px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #f9a825;
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.08);
+        }
+        
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.3)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+        
+        .form-group select option {
+            background: #1a1a4e;
+            color: #fff;
+        }
+        
+        .profile-upload-section {
+            margin-bottom: 14px;
+        }
+        
+        .profile-upload-section label {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+        
+        .profile-upload {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 4px 0;
+        }
+        
+        .avatar-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-preview.has-image {
+            border: 2px solid rgba(249, 168, 37, 0.3);
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-preview i {
+            font-size: 22px;
+            color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .upload-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            padding: 8px 16px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .upload-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(249, 168, 37, 0.3);
+            color: #fff;
+        }
+        
+        .upload-btn i {
+            margin-right: 6px;
+        }
+        
+        #profile-picture-input {
+            display: none;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #f9a825, #f57f17);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(249, 168, 37, 0.25);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary i {
+            margin-right: 6px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 16px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .divider span {
+            padding: 0 14px;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+        
+        .social-btn i {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+        
+        .social-btn.google i {
+            color: #ea4335;
+        }
+        
+        .social-btn.facebook i {
+            color: #1877f2;
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+        
+        .footer-text a {
+            color: #f9a825;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-text a:hover {
+            color: #ff6f00;
+            text-decoration: underline;
+        }
+        
+        .error-messages {
+            background: rgba(244, 67, 54, 0.08);
+            border: 1px solid rgba(244, 67, 54, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            color: #ef5350;
+            font-size: 13px;
+        }
+        
+        .error-messages ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .error-messages li {
+            margin-bottom: 2px;
+        }
+        
+        .error-messages li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .error-messages i {
+            margin-right: 6px;
+        }
+        
+        .success-message {
+            background: rgba(76, 175, 80, 0.08);
+            border: 1px solid rgba(76, 175, 80, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            color: #66bb6a;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .success-message i {
+            margin-right: 6px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 16px 20px;
+                margin: 10px auto;
+                max-height: 98vh;
+            }
+            
+            .logo h1 {
+                font-size: 22px;
+            }
+            
+            .social-login {
+                flex-direction: column;
+            }
+            
+            .profile-upload {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .upload-btn {
+                width: 100%;
+            }
+            
+            .form-group input,
+            .form-group select {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1><i class="fas fa-graduation-cap"></i>Camly</h1>
+        </div>
+        <p class="subtitle">Create your new account</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if form.errors %}
+            <div class="error-messages">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li><i class="fas fa-exclamation-circle"></i> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter Email" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            
+            <div class="form-group">
+                <label>User Type</label>
+                <select name="user_type" required>
+                    <option value="student">Student</option>
+                    <option value="landlord">Landlord</option>
+                </select>
+            </div>
+            
+            <div class="profile-upload-section">
+                <label>Profile Picture</label>
+                <div class="profile-upload">
+                    <div class="avatar-preview" id="avatarPreview">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <label class="upload-btn" for="profile-picture-input">
+                        <i class="fas fa-upload"></i> Choose Photo
+                    </label>
+                    <input type="file" name="profile_picture" id="profile-picture-input" accept="image/*">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password1" placeholder="Password" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="password2" placeholder="Confirm Password" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>Or Sign in with</span>
+        </div>
+        
+        <div class="social-login">
+            <a href="#" class="social-btn google">
+                <i class="fab fa-google"></i> Google
+            </a>
+            <a href="#" class="social-btn facebook">
+                <i class="fab fa-facebook"></i> Facebook
+            </a>
+        </div>
+        
+        <p class="footer-text">
+            Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
+        </p>
+    </div>
+    
+    <script>
+        document.getElementById('profile-picture-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('avatarPreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Profile preview">`;
+                    preview.classList.add('has-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

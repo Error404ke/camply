@@ -1,0 +1,229 @@
+{% load static %}
+
+<div class="story-ring-container">
+    <div class="story-rings-wrapper">
+        <!-- Add Story Button -->
+        <div class="story-ring-item add-story">
+            <div class="story-ring" onclick="openStoryUpload()">
+                <div class="story-thumbnail">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Add Story">
+                    {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" alt="Add Story">
+                    {% endif %}
+                    <div class="add-story-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+            </div>
+            <span class="story-username">Your Story</span>
+        </div>
+        
+        <!-- Other Users' Stories -->
+        {% for story_ring in story_rings %}
+            <div class="story-ring-item" onclick="viewStory({{ story_ring.first_story_id }})">
+                <div class="story-ring {% if story_ring.story_count > 0 %}has-stories{% endif %}">
+                    <div class="story-thumbnail">
+                        {% if story_ring.thumbnail %}
+                            <img src="{{ story_ring.thumbnail }}" alt="{{ story_ring.user.username }}'s story">
+                        {% else %}
+                            <img src="{% static 'images/default-avatar.png' %}" alt="{{ story_ring.user.username }}">
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="story-username">{{ story_ring.user.username|truncatechars:10 }}</span>
+                {% if story_ring.story_count > 1 %}
+                    <span class="story-count">{{ story_ring.story_count }}</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="text-white-50">No stories available</div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.story-ring-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.story-rings-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 5px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.3) transparent;
+}
+
+.story-rings-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.story-rings-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+}
+
+.story-ring-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+    min-width: 80px;
+}
+
+.story-ring-item:hover {
+    transform: translateY(-3px);
+}
+
+.story-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 3px;
+    background: #2d2d2d;
+    transition: all 0.3s ease;
+}
+
+.story-ring.has-stories {
+    background: linear-gradient(135deg, #f9a825, #ff6f00);
+    animation: ringPulse 2s ease-in-out infinite;
+}
+
+.story-ring:hover {
+    transform: scale(1.05);
+}
+
+@keyframes ringPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.story-thumbnail {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(13, 38, 20, 0.8);
+    background: rgba(13, 38, 20, 0.6);
+    position: relative;
+}
+
+.story-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.add-story .story-ring {
+    background: linear-gradient(135deg, #1a237e, #f9a825);
+}
+
+.add-story-icon {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #1a237e, #0d47a1);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(13, 38, 20, 0.8);
+    font-size: 14px;
+}
+
+.story-username {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 6px;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.story-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e53935;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    min-width: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .story-ring { width: 65px; height: 65px; }
+    .story-ring-item { min-width: 65px; }
+    .story-username { font-size: 0.65rem; max-width: 65px; }
+    .add-story-icon { width: 22px; height: 22px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+    .story-ring { width: 55px; height: 55px; }
+    .story-ring-item { min-width: 55px; }
+    .story-username { font-size: 0.6rem; max-width: 55px; }
+    .add-story-icon { width: 20px; height: 20px; font-size: 10px; }
+}
+</style>
+
+<script>
+function viewStory(storyId) {
+    if (storyId) {
+        window.location.href = `/stories/${storyId}/`;
+    } else {
+        alert('No stories available');
+    }
+}
+
+function openStoryUpload() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = function(e) {
+        if (this.files && this.files[0]) {
+            const formData = new FormData();
+            formData.append('image', this.files[0]);
+            formData.append('caption', '');
+            
+            fetch('/stories/create/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to upload story');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading story');
+            });
+        }
+    };
+    fileInput.click();
+}
+</script>
+{% endblock %}
