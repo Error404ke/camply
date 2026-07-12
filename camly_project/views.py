@@ -31,7 +31,7 @@ def home(request):
         reels = []
         print(f"Error fetching reels: {e}")
     
-    # Get stories - Group by user with latest story
+    # Get stories 
     try:
         active_stories = Story.objects.filter(
             is_active=True,
