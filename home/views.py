@@ -956,7 +956,7 @@ def home(request):
             to {{ opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }}
         }}
 
-        /* ===== Responsive ===== */
+        
         @media (max-width: 600px) {{
             .header {{
                 padding: 8px 16px;
