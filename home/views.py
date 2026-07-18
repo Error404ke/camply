@@ -599,7 +599,7 @@ def home(request):
             overflow: hidden;
         }}
 
-        /* Glass shine effect */
+       
         .post-card::before {{
             content: '';
             position: absolute;
