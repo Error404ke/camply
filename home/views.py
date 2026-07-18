@@ -1426,7 +1426,7 @@ def home(request):
             }}, 3000);
         }}
 
-        // ===== Load Theme =====
+        
         document.addEventListener('DOMContentLoaded', function() {{
             const savedTheme = localStorage.getItem('theme');
             const isDark = savedTheme === 'dark';
