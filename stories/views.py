@@ -10,7 +10,7 @@ User = get_user_model()
 @login_required
 def story_list(request):
     users_with_stories = User.objects.filter(
-        story_stories__is_active=True,  # Changed from 'stories' to 'story_stories'
+        story_stories__is_active=True,  
         story_stories__expires_at__gt=timezone.now()
     ).distinct().exclude(id=request.user.id)
     
